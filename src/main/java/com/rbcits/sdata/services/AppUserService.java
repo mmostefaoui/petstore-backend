@@ -4,7 +4,7 @@ import com.rbcits.sdata.domain.dtos.AppUserDto;
 import com.rbcits.sdata.domain.entities.AppUser;
 import com.rbcits.sdata.domain.repository.AppUserRepository;
 import com.rbcits.sdata.domain.repository.RoleRepository;
-import com.rbcits.sdata.exceptions.UserAlreadyExistException;
+import com.rbcits.sdata.exceptions.ResourceAlreadyExistException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,18 +16,18 @@ import java.util.Collection;
 public class AppUserService implements IAppUserService {
 
     private AppUserRepository appUserRepository;
-    private RoleRepository roleRepository;
+
+
 
     @Autowired
-    public AppUserService(AppUserRepository appUserRepository, RoleRepository roleRepository) {
+    public AppUserService(AppUserRepository appUserRepository) {
         this.appUserRepository = appUserRepository;
-        this.roleRepository = roleRepository;
     }
 
     @Override
-    public AppUser registerNewUser(AppUser user) throws UserAlreadyExistException {
+    public AppUser addUser(AppUser user) throws ResourceAlreadyExistException {
         if (userExist(user.getUsername())) {
-            throw new UserAlreadyExistException("User already exists with that username " + user.getUsername());
+            throw new ResourceAlreadyExistException("User already exists with that username " + user.getUsername());
         }
         return appUserRepository.save(user);
     }
@@ -45,7 +45,7 @@ public class AppUserService implements IAppUserService {
 
     @Override
     public void deleteUser(AppUser user) {
-
+        appUserRepository.delete(user);
     }
 
     @Override

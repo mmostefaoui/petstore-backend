@@ -5,7 +5,7 @@ import java.util.Collection;
 
 @Entity
 @Table(name = "ROLE")
-public class Role {
+public class Role implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ROLE_ID")

@@ -6,7 +6,7 @@ import java.util.Collection;
 
 @Entity
 @Table(name = "PRIVILEGE")
-public class Privilege {
+public class Privilege implements java.io.Serializable  {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "PRIVILEGE_ID")

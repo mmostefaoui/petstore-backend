@@ -1,4 +1,4 @@
-package com.rbcits.sdata.configuration;
+package com.rbcits.sdata.config;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;

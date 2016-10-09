@@ -7,6 +7,7 @@ import com.rbcits.sdata.domain.repository.AppUserRepository;
 import com.rbcits.sdata.domain.repository.RoleRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -35,12 +36,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             return new org.springframework.security.core.userdetails.User(
                     " ", " ", true, true, true, true,
-                    getAuthorities(Collections.singletonList(roleRepository.findByName("ROLE_USER"))));
+                    getAuthorities(Arrays.asList(roleRepository.findByName("ROLE_USER"))));
         }
 
-        return new org.springframework.security.core.userdetails.User(
+        User user1 = new org.springframework.security.core.userdetails.User(
                 user.getUsername(), user.getPassword(), user.getUserStatus() == 0, true, true,
                 true, getAuthorities(user.getRoles()));
+        return user1;
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Collection<Role> roles) {
