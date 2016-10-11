@@ -17,8 +17,6 @@ public class AppUserService implements IAppUserService {
 
     private AppUserRepository appUserRepository;
 
-
-
     @Autowired
     public AppUserService(AppUserRepository appUserRepository) {
         this.appUserRepository = appUserRepository;

@@ -12,7 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,31 +50,25 @@ public class AppUserController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @PostAuthorize("returnObject.username == principal.username or hasAuthority('ADMIN_UNLIMITED_PRIVILEGE')")
+    @PreAuthorize("hasAnyAuthority('ADMIN_UNLIMITED_PRIVILEGE','USER_FIND_PRIVILEGE')")
     public AppUserDto get(@PathVariable("id") AppUser user) {
         LOGGER.info("Find user.  id={}", user.getId());
         return convertToDto(user);
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    @PreAuthorize("hasAuthority('ADMIN_UNLIMITED_PRIVILEGE')")
-    public List<AppUserDto> get(HttpServletRequest request) {
-       // if(checkIfFetchUsers(request)){
+    @PreAuthorize("hasAnyAuthority('ADMIN_UNLIMITED_PRIVILEGE')")
+    public List<AppUserDto> get() {
         LOGGER.info("Find all users.");
         return appUserService.getAllUsers()
                 .stream().map(user -> convertToDto(user)).collect(Collectors.toList());
-//        }else {
-//            return new ArrayList<>();
-//        }
-    }
-
-    private boolean checkIfFetchUsers(HttpServletRequest request) {
-        return request.isUserInRole("ROLE_ADMIN");
     }
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public GenericResponse create(@Valid @RequestBody AppUserDto userDto, HttpServletRequest request, HttpServletResponse response) {
-        LOGGER.debug("Registering user with information: {}", userDto);
+        LOGGER.info("Registering user with information: {}", userDto);
 
         AppUser user = convertToEntity(userDto);
         user.setUserStatus(0);
@@ -83,7 +80,8 @@ public class AppUserController {
         return new GenericResponse("success");
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "{id}")
+    @PostAuthorize("returnObject.username == principal.username or hasAuthority('ADMIN_UNLIMITED_PRIVILEGE')")
+    @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public AppUserDto update(@PathVariable("id") Long userId, @RequestBody AppUserDto userDto) {
         return convertToDto(appUserService.updateUser(userId, userDto));
     }
@@ -94,6 +92,10 @@ public class AppUserController {
 
     }
 
+    private boolean checkIfFetchUsers(HttpServletRequest request) {
+        return request.isUserInRole("ROLE_ADMIN");
+    }
+
     private AppUserDto convertToDto(AppUser user) {
         return modelMapper.map(user, AppUserDto.class);
     }
@@ -102,5 +104,17 @@ public class AppUserController {
         AppUser user = modelMapper.map(userDto, AppUser.class);
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         return user;
+    }
+
+    private String getPrincipal(){
+        String userName = null;
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        if (principal instanceof UserDetails) {
+            userName = ((UserDetails)principal).getUsername();
+        } else {
+            userName = principal.toString();
+        }
+        return userName;
     }
 }

@@ -32,17 +32,20 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        boolean enabled = true;
+        boolean accountNonExpired = true;
+        boolean credentialsNonExpired = true;
+        boolean accountNonLocked = true;
         AppUser user = appUserRepository.findByUsername(username);
         if (user == null) {
             return new org.springframework.security.core.userdetails.User(
-                    " ", " ", true, true, true, true,
+                    " ", " ", enabled, accountNonExpired, credentialsNonExpired, accountNonLocked,
                     getAuthorities(Arrays.asList(roleRepository.findByName("ROLE_USER"))));
         }
 
-        User user1 = new org.springframework.security.core.userdetails.User(
-                user.getUsername(), user.getPassword(), user.getUserStatus() == 0, true, true,
-                true, getAuthorities(user.getRoles()));
-        return user1;
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(), user.getPassword(), user.getUserStatus() == 0, accountNonExpired, credentialsNonExpired,
+                accountNonLocked, getAuthorities(user.getRoles()));
     }
 
     private Collection<? extends GrantedAuthority> getAuthorities(Collection<Role> roles) {

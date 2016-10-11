@@ -40,6 +40,8 @@ public class AppUserDto {
     @Phone
     private String phone;
 
+    private Integer userStatus;
+
     public Long getId() {
         return id;
     }
@@ -102,5 +104,13 @@ public class AppUserDto {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Integer getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(Integer userStatus) {
+        this.userStatus = userStatus;
     }
 }
