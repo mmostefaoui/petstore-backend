@@ -7,12 +7,8 @@ import com.rbcits.sdata.domain.entities.Pet;
 import com.rbcits.sdata.exceptions.ResourceNotFoundException;
 import com.rbcits.sdata.services.IPetService;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,16 +19,14 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/pets")
-public class PetController {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getName());
+public class PetController extends RESTController<Pet, PetDto> {
 
     private final IPetService petService;
-    private final ModelMapper modelMapper;
+
     @Autowired
-    public PetController(IPetService petService, ModelMapper modelMapper) {
+    protected PetController(ModelMapper modelMapper, IPetService petService) {
+        super(modelMapper);
         this.petService = petService;
-        this.modelMapper = modelMapper;
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
@@ -72,7 +66,7 @@ public class PetController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    @ResponseStatus( HttpStatus.OK )
+    @ResponseStatus(HttpStatus.OK)
     @PreAuthorize("hasAnyAuthority('ADMIN_UNLIMITED_PRIVILEGE', 'USER_DELETE_PRIVILEGE')")
     public GenericResponse delete(@PathVariable("id") Pet pet) {
         petService.deletePet(pet);
@@ -85,12 +79,13 @@ public class PetController {
 
     }
 
-    private PetDto convertToDto(Pet pet) {
-        return modelMapper.map(pet, PetDto.class);
+    @Override
+    Class<Pet> getTEntityClass() {
+        return Pet.class;
     }
 
-    private Pet convertToEntity(PetDto petDto) throws ParseException {
-        return modelMapper.map(petDto, Pet.class);
-
+    @Override
+    Class<PetDto> getTEntityDtoClass() {
+        return PetDto.class;
     }
 }

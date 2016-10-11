@@ -7,8 +7,6 @@ import com.rbcits.sdata.exceptions.ResourceNotFoundException;
 import com.rbcits.sdata.services.IAppUserService;
 import com.rbcits.sdata.services.IRoleService;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
@@ -28,24 +26,16 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/users")
-public class AppUserController {
-
-    private final Logger LOGGER = LoggerFactory.getLogger(this.getClass().getName());
-
+public class AppUserController extends RESTController<AppUser, AppUserDto> {
     private final IAppUserService appUserService;
     private final IRoleService roleService;
-    private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public AppUserController(IAppUserService appUserService
-            , IRoleService roleService
-            , ModelMapper modelMapper
-            , PasswordEncoder passwordEncoder) {
-
+    protected AppUserController(ModelMapper modelMapper, IAppUserService appUserService, IRoleService roleService, PasswordEncoder passwordEncoder) {
+        super(modelMapper);
         this.appUserService = appUserService;
         this.roleService = roleService;
-        this.modelMapper = modelMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -70,6 +60,7 @@ public class AppUserController {
     public GenericResponse create(@Valid @RequestBody AppUserDto userDto, HttpServletRequest request, HttpServletResponse response) {
         LOGGER.info("Registering user with information: {}", userDto);
 
+        userDto.setPassword(passwordEncoder.encode(userDto.getPassword()));
         AppUser user = convertToEntity(userDto);
         user.setUserStatus(0);
         user.setRoles(Arrays.asList(roleService.findByName("ROLE_USER")));
@@ -96,25 +87,13 @@ public class AppUserController {
         return request.isUserInRole("ROLE_ADMIN");
     }
 
-    private AppUserDto convertToDto(AppUser user) {
-        return modelMapper.map(user, AppUserDto.class);
+    @Override
+    Class<AppUser> getTEntityClass() {
+        return AppUser.class;
     }
 
-    private AppUser convertToEntity(AppUserDto userDto) throws ParseException {
-        AppUser user = modelMapper.map(userDto, AppUser.class);
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        return user;
-    }
-
-    private String getPrincipal(){
-        String userName = null;
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        if (principal instanceof UserDetails) {
-            userName = ((UserDetails)principal).getUsername();
-        } else {
-            userName = principal.toString();
-        }
-        return userName;
+    @Override
+    Class<AppUserDto> getTEntityDtoClass() {
+        return AppUserDto.class;
     }
 }

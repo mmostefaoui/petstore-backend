@@ -1,6 +1,5 @@
 package com.rbcits.sdata.services;
 
-import com.rbcits.sdata.domain.dtos.CategoryDto;
 import com.rbcits.sdata.domain.dtos.PetDto;
 import com.rbcits.sdata.domain.entities.Category;
 import com.rbcits.sdata.domain.entities.Pet;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 @Service
