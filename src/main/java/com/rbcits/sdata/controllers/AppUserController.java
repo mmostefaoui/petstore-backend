@@ -8,12 +8,10 @@ import com.rbcits.sdata.services.IAppUserService;
 import com.rbcits.sdata.services.IRoleService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.expression.ParseException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,15 +38,36 @@ public class AppUserController extends RESTController<AppUser, AppUserDto> {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.GET)
-    @PostAuthorize("returnObject.username == principal.username or hasAuthority('ADMIN_UNLIMITED_PRIVILEGE')")
-    @PreAuthorize("hasAnyAuthority('ADMIN_UNLIMITED_PRIVILEGE','USER_FIND_PRIVILEGE')")
+    @PostAuthorize("returnObject.username == principal.username or hasAuthority('UNLIMITED_PRIVILEGE')")
+    @PreAuthorize("hasAnyAuthority('UNLIMITED_PRIVILEGE','FIND_PRIVILEGE')")
     public AppUserDto get(@PathVariable("id") AppUser user) {
         LOGGER.info("Find user.  id={}", user.getId());
         return convertToDto(user);
     }
 
+    @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
+    @PostAuthorize("returnObject.username == principal.username or hasAuthority('UNLIMITED_PRIVILEGE')")
+    @PreAuthorize("hasAnyAuthority('UNLIMITED_PRIVILEGE','FIND_PRIVILEGE')")
+    @ResponseStatus(HttpStatus.OK)
+    public AppUserDto findByUsername() {
+        final AppUserDto userDto = convertToDto(appUserService.findUserByUsername(getPrincipal()));
+        userDto.setAuthorities(getAuthorities());
+        return userDto;
+    }
+
+    @RequestMapping(value = "/check/{username}")
+    public ResponseEntity<Void> userExists(@PathVariable("username") String username) {
+        final AppUser foundUser = appUserService.findUserByUsername(username);
+
+        if (foundUser == null) {
+            LOGGER.info("user with username {} not found", username);
+            return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
+
     @RequestMapping(method = RequestMethod.GET)
-    @PreAuthorize("hasAnyAuthority('ADMIN_UNLIMITED_PRIVILEGE')")
+    @PreAuthorize("hasAnyAuthority('UNLIMITED_PRIVILEGE')")
     public List<AppUserDto> get() {
         LOGGER.info("Find all users.");
         return appUserService.getAllUsers()
@@ -71,7 +90,7 @@ public class AppUserController extends RESTController<AppUser, AppUserDto> {
         return new GenericResponse("success");
     }
 
-    @PostAuthorize("returnObject.username == principal.username or hasAuthority('ADMIN_UNLIMITED_PRIVILEGE')")
+    @PostAuthorize("returnObject.username == principal.username or hasAuthority('UNLIMITED_PRIVILEGE')")
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     public AppUserDto update(@PathVariable("id") Long userId, @RequestBody AppUserDto userDto) {
         return convertToDto(appUserService.updateUser(userId, userDto));

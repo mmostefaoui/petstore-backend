@@ -9,6 +9,7 @@ import com.rbcits.sdata.domain.repository.PetRepository;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
@@ -44,8 +45,14 @@ public class PetService implements IPetService {
     }
 
     @Override
-    public Collection<Pet> getAllPets() {
-        return petRepository.findAll();
+    public Collection<Pet> getAllPets(Specification<Pet> spec)
+    {
+        return petRepository.findAll(spec);
+    }
+
+    @Override
+    public Collection<Pet> getAllPetByCategory(Long categoryId) {
+        return petRepository.findAllByCategoryId(categoryId);
     }
 
     @Override
@@ -66,5 +73,4 @@ public class PetService implements IPetService {
 
         return petRepository.save(update);
     }
-
 }

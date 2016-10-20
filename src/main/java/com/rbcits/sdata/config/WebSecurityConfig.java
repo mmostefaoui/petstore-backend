@@ -1,11 +1,8 @@
 package com.rbcits.sdata.config;
 
-import com.rbcits.sdata.security.CustomUserDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -18,13 +15,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @ComponentScan("com.rbcits.sdata.security")
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/users**").hasAnyAuthority("ADMIN_UNLIMITED_PRIVILEGE","USER_FIND_PRIVILEGE")
+                .antMatchers(HttpMethod.GET, "/api/users**").hasAnyAuthority("ADMIN_UNLIMITED_PRIVILEGE", "USER_FIND_PRIVILEGE")
                 .antMatchers(HttpMethod.POST, "/api/users/*").permitAll()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow CORS OPTIONS calls through
                 .antMatchers("/*").permitAll()
@@ -33,6 +29,7 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .httpBasic().and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
 
 
 

@@ -1,5 +1,7 @@
 package com.rbcits.sdata.domain.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rbcits.sdata.domain.entities.Role;
 import com.rbcits.sdata.validators.Password;
 import com.rbcits.sdata.validators.Phone;
 import org.hibernate.validator.constraints.Email;
@@ -7,6 +9,8 @@ import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Collection;
+import java.util.List;
 
 public class AppUserDto {
 
@@ -41,6 +45,8 @@ public class AppUserDto {
     private String phone;
 
     private Integer userStatus;
+
+    List<String> authorities;
 
     public Long getId() {
         return id;
@@ -112,5 +118,13 @@ public class AppUserDto {
 
     public void setUserStatus(Integer userStatus) {
         this.userStatus = userStatus;
+    }
+
+    public List<String> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(List<String> authorities) {
+        this.authorities = authorities;
     }
 }
