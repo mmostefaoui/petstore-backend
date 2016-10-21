@@ -1,6 +1,7 @@
 package com.rbcits.sdata.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rbcits.sdata.security.CustomBasicAuthenticationEntryPoint;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

@@ -1,5 +1,7 @@
 package com.rbcits.sdata.config;
 
+import com.rbcits.sdata.security.RestAuthenticationEntryPoint;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,6 +17,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @ComponentScan("com.rbcits.sdata.security")
 class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Bean
+    public RestAuthenticationEntryPoint restAuthenticationEntryPoint(){
+        return new RestAuthenticationEntryPoint();
+    }
+
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -27,39 +35,8 @@ class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .httpBasic()
                 .and()
-                .httpBasic().and()
+                .httpBasic().authenticationEntryPoint(restAuthenticationEntryPoint()).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-
-
-
-
-        /*
-        http
-                .csrf().disable()
-                .authorizeRequests()
-                .antMatchers(HttpMethod.GET, "/api/users**").authenticated()
-                .antMatchers(HttpMethod.PUT, "/api/**").authenticated()
-                .antMatchers(HttpMethod.DELETE, "/api/**").authenticated()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow CORS OPTIONS calls through
-                .and()
-                .authorizeRequests()
-                .antMatchers("/greeting**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/users**").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .httpBasic().and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-*/
-        /*
-        http.antMatcher("/api/**")
-                .authorizeRequests()
-                .antMatchers(HttpMethod.POST, "/api/users").permitAll()
-                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // allow CORS OPTIONS calls through
-                .anyRequest().authenticated()
-                .and().
-                httpBasic().and().
-                csrf().disable();
-                */
     }
 
 }
