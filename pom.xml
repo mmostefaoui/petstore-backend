@@ -40,6 +40,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>gs-rest-service-cors</artifactId>
+			<version>RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
